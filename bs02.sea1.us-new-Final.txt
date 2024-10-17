@@ -1,0 +1,712 @@
+
+admin/w@tdenkje007
+
+
+hostname bs02.sea1.us-new
+vdc bs02.sea1.us id 1
+  limit-resource vlan minimum 16 maximum 4094
+  limit-resource vrf minimum 2 maximum 4096
+  limit-resource port-channel minimum 0 maximum 256
+  limit-resource u4route-mem minimum 248 maximum 248
+  limit-resource u6route-mem minimum 96 maximum 96
+  limit-resource m4route-mem minimum 58 maximum 58
+  limit-resource m6route-mem minimum 8 maximum 8
+
+feature scp-server
+feature tacacs+
+cfs eth distribute
+feature udld
+feature interface-vlan
+feature lacp
+feature vpc
+feature lldp
+
+no password strength-check
+username admin password 5 $5$S1UkSqNT$SXA6r6e53WgqEilE9mXQy.mbD1VLTqbi6KRDixSDAqB  role network-admin
+username recovery password 5 $5$APHMIO$frGce25jXSKXB7vol6VwYtpyzWEo6jrbrqAiu9Xoy74  role network-admin
+username recovery role priv-15
+no ip domain-lookup
+tacacs-server key 7 "QKG@1Esuwudx!H1B2C3"
+ip tacacs source-interface Vlan127
+tacacs-server host 195.238.244.9 
+tacacs-server host 10.140.24.30 
+tacacs-server host 10.140.88.30 
+tacacs-server host 10.140.152.30 
+aaa group server tacacs+ TACACS_SERVERS 
+    server 10.140.88.30 
+    server 195.238.244.9 
+    server 10.140.24.30 
+    server 10.140.152.30 
+spanning-tree mode mst
+errdisable recovery interval 30
+errdisable recovery cause link-flap
+errdisable recovery cause udld
+errdisable recovery cause bpduguard
+ip access-list SNMP_RO
+  10 permit udp 195.238.244.0 0.0.0.31 any eq snmp 
+  20 permit tcp 195.238.244.0 0.0.0.31 any eq 161 
+  30 permit tcp 195.238.244.0 0.0.0.31 any eq 162 
+  40 permit udp 202.158.240.216 0.0.0.7 any eq snmp 
+  50 permit tcp 202.158.240.216 0.0.0.7 any eq 161 
+  60 permit tcp 202.158.240.216 0.0.0.7 any eq 162 
+  70 permit udp 74.122.110.192 0.0.0.15 any eq snmp 
+  80 permit tcp 74.122.110.192 0.0.0.15 any eq 161 
+  90 permit tcp 74.122.110.192 0.0.0.15 any eq 162 
+  130 permit udp 10.127.70.5/32 any eq snmp 
+  140 permit udp 10.127.70.5/32 any eq snmptrap 
+  2000 deny ip any any log 
+ip access-list VTY_ACCESS
+  10 permit ip 195.238.244.0 0.0.0.31 any 
+  20 permit ip 202.158.240.216 0.0.0.7 any 
+  30 permit ip 74.122.110.192 0.0.0.15 any 
+  90 permit ip 10.127.70.5/32 any 
+  100 deny ip any any log 
+class-map type qos match-all trust-map
+  match cos 4-7
+policy-map type qos ingresspolicy
+  class trust-map
+copp profile strict
+snmp-server contact noc@expereo.com
+snmp-server location Seattle,WA,USA
+snmp-server source-interface traps Vlan127
+snmp-server user admin network-admin auth md5 0x05d35dbe3e28d51b89579a3ab6325d68 priv 0x05d35dbe3e28d51b89579a3ab6325d68 loca
+lizedkey
+snmp-server user recovery network-admin auth md5 0x61507a1280882c4f82cbeef2e84bcf79 priv 0x61507a1280882c4f82cbeef2e84bcf79 l
+ocalizedkey
+snmp-server user recovery priv-15
+rmon event 1 log trap public description FATAL(1) owner PMON@FATAL
+rmon event 2 log trap public description CRITICAL(2) owner PMON@CRITICAL
+rmon event 3 log trap public description ERROR(3) owner PMON@ERROR
+rmon event 4 log trap public description WARNING(4) owner PMON@WARNING
+rmon event 5 log trap public description INFORMATION(5) owner PMON@INFO
+snmp-server community BackB0n3-007SD group network-operator
+snmp-server community BackB0n3-007SD use-acl SNMP_RO
+ntp server 195.238.244.3 use-vrf default
+ntp server 195.238.244.4 use-vrf default
+aaa authentication login default group TACACS_SERVERS 
+aaa authentication login console group TACACS_SERVERS local 
+aaa authorization ssh-certificate default group TACACS_SERVERS 
+aaa authorization commands default group TACACS_SERVERS 
+aaa accounting default group TACACS_SERVERS 
+aaa authentication login error-enable 
+
+ip route 0.0.0.0/0 10.127.6.1
+system vlan long-name
+vlan 1,3-5,73-74,88,100,127,501-502,504-506,602,604,606-607,701-702,705-708,711,801,803-804,2000,3801-3802,3820,3889,3891
+vlan 3
+  name ZayoIPT
+vlan 4
+  name CogentIPT
+vlan 5
+  name Sea-IX
+vlan 73
+  name USSEAPHYP01_services_1
+vlan 74
+  name USSEAPHYP01_services_2
+vlan 88
+  name USSEAPHYP01_Poller
+vlan 100
+  name POPLAN
+vlan 127
+  name Management
+vlan 501
+  name ORD-72491158(Shaw)
+vlan 502
+  name ORD-74144628(Shaw)
+vlan 504
+  name ORD-78506130
+vlan 505
+  name ORD-79544357(Shaw)
+vlan 506
+  name Shaw-ORD-79750290
+vlan 602
+  name ORD-74536172.1(Zayo)
+vlan 604
+  name Westinghouse_ORD-77685535
+vlan 606
+  name ORD-77648187(Zayo)
+vlan 607
+  name ORD-80001530(Zayo)
+vlan 701
+  name Telus_ORD-79685623
+vlan 702
+  name Telus-ORD-80001583
+vlan 705
+  name ORD-71862451
+vlan 706
+  name ORD-72266652(Telus)
+vlan 707
+  name ORD-74452892(Telus)
+vlan 708
+  name ORD-77385163(Telus)
+vlan 711
+  name Telus-ORD-80001416
+vlan 801
+  name ORD-74693908(CenturyLink)
+vlan 803
+  name ORD-75034767.1
+vlan 804
+  name ORD-75265545(Centurylink)
+vlan 2000
+  name ORD-72022890-temp
+vlan 3801
+  name 6WIND_PE1
+vlan 3802
+  name 6WIND_PE2
+vlan 3820
+  name SDWAN_ACCESS_PGW1
+vlan 3889
+  name 6WIND_IPv4_NEW
+vlan 3891
+  name Cloudfabric_PGW1
+
+no cdp enable
+no spanning-tree bridge assurance
+spanning-tree mst 0 priority 16384
+spanning-tree mst configuration
+  name expereo
+udld aggressive
+udld message-time 7
+vrf context management
+hardware access-list tcam region redirect 0
+hardware access-list tcam region l3qos-lite 256
+vpc domain 20
+  role priority 2
+  system-priority 10
+  peer-keepalive destination 192.0.2.253 source 192.0.2.254 precedence 7 
+  dual-active exclude interface-vlan 127
+  auto-recovery
+
+
+interface Vlan1
+
+interface Vlan127
+  description MGT:VLAN127::1000:n/a
+  no shutdown
+  ip address 10.127.6.9/24
+
+interface port-channel10
+  description POC:VPC10:BS01.SEA1-BS02.SEA1:300G:n/a
+  switchport mode trunk
+  spanning-tree port type network
+  vpc peer-link
+  no shutdown
+
+interface port-channel11
+  description POC:VPC11:BR01 Portchannel11.SEA1:20G:n/a
+  switchport mode trunk
+  spanning-tree port type edge trunk
+  mtu 9216
+  vpc 11
+  no shutdown
+
+interface port-channel12
+  description POC:VPC12:BR02 Portchannel12.SEA1:20G:n/a
+  switchport mode trunk
+  spanning-tree port type edge trunk
+  mtu 9216
+  vpc 12
+  no shutdown
+
+interface port-channel18
+  description POC:VPC18:LM01.SEA1 Portchannel18:2000:n/a
+  switchport mode trunk
+  spanning-tree port type edge trunk
+  mtu 9216
+  speed 1000
+  duplex full
+  vpc 18
+  no shutdown
+
+interface port-channel31
+  description POC:VPC31:to br-sao1-pe01:20G - BACKBONE
+  switchport mode trunk
+  switchport trunk allowed vlan 3800-3819
+  mtu 9216
+  vpc 31
+  no shutdown
+
+interface port-channel32
+  description POC:VPC32:to br-sao1-pe01:20G - ACCESS
+  switchport mode trunk
+  switchport trunk allowed vlan 3820-3889
+  mtu 9216
+  vpc 32
+  no shutdown
+
+interface port-channel33
+  description POC:VPC33:to br-sao1-pe02:20G - Backbone
+  switchport mode trunk
+  switchport trunk allowed vlan 3800-3819
+  mtu 9216
+  vpc 33
+  no shutdown
+
+interface port-channel34
+  description POC:VPC34:to br-sao1-pe02:20G - ACCESS
+  switchport mode trunk
+  switchport trunk allowed vlan 3820-3889
+  mtu 9216
+  vpc 34
+  no shutdown
+
+interface port-channel88
+  description POC:VPC88:ESXi:2000:n/a
+  switchport mode trunk
+  switchport trunk allowed vlan 74,88,127
+  spanning-tree port type edge trunk
+  mtu 9216
+  vpc 88
+  no shutdown
+
+interface Ethernet1/1
+  description CORE:VPC18:LM01.SEA1-Gig0/0/1:1000:n/a
+  no cdp enable
+  switchport mode trunk
+  mtu 9216
+  speed 1000
+  duplex full
+  channel-group 18 mode active
+  no shutdown
+
+interface Ethernet1/2
+  description RSVD:CORE:VPC18:LM02.SEA1-Gig0/0/1:1000:n/a - failover
+  shutdown
+  mtu 9216
+
+interface Ethernet1/3
+  description SER:INBAND:USSEA1HYP01:vmnic0:1000:n/a
+  no cdp enable
+  switchport access vlan 127
+  spanning-tree port type edge
+  spanning-tree bpdufilter enable
+  mtu 9216
+  no shutdown
+
+interface Ethernet1/4
+  description SER:VLAN74:USSEA1HYP01:vmnic3:1000:n/a
+  no cdp enable
+  switchport mode trunk
+  switchport trunk allowed vlan 74,127
+  spanning-tree port type edge trunk
+  mtu 9216
+  no shutdown
+
+interface Ethernet1/5
+  description SER:VPC88:USSEA1HYP01:vmnic5:1000:n/a
+  lacp rate fast
+  switchport mode trunk
+  switchport trunk allowed vlan 74,88,127
+  spanning-tree port type edge trunk
+  mtu 9216
+  channel-group 88 mode active
+  no shutdown
+
+interface Ethernet1/6
+  description XCA:VLAN127:XCAPOLLER1:MGT 1:1000:n/a
+  no cdp enable
+  switchport access vlan 127
+  spanning-tree port type edge
+  spanning-tree bpdufilter enable
+  mtu 9216
+  no shutdown
+
+interface Ethernet1/7
+  description MGT:VLAN127:CLOUDFABRIC1 | MGT 1 | port:1000:n/a
+  no cdp enable
+  switchport access vlan 127
+  spanning-tree port type edge
+  spanning-tree bpdufilter enable
+  mtu 9216
+  no shutdown
+
+interface Ethernet1/8
+  description MGT:VLAN127:CLOUDFABRIC2 | MGT 1 | port:1000:n/a
+  no cdp enable
+  switchport access vlan 127
+  spanning-tree port type edge
+  spanning-tree bpdufilter enable
+  mtu 9216
+  no shutdown
+
+interface Ethernet1/9
+  description MGT:VLAN127:SDWANGATEWAY1 | MGT 1 | port:1000:n/a
+  no cdp enable
+  switchport access vlan 127
+  spanning-tree port type edge
+  spanning-tree bpdufilter enable
+  mtu 9216
+  no shutdown
+
+interface Ethernet1/10
+  description XCA:VLAN127:XCAPOLLER2:MGT 1:1000:n/a
+  no cdp enable
+  switchport access vlan 127
+  spanning-tree port type edge
+  spanning-tree bpdufilter enable
+  mtu 9216
+  no shutdown
+
+interface Ethernet1/11
+  description FREE:1000
+  shutdown
+
+interface Ethernet1/12
+  description FREE:1000
+  shutdown
+
+interface Ethernet1/13
+  description FREE:1000
+  shutdown
+
+interface Ethernet1/14
+  description FREE:1000
+  shutdown
+
+interface Ethernet1/15
+  description FREE:1000
+  shutdown
+
+interface Ethernet1/16
+ description FREE:1000
+  shutdown
+
+interface Ethernet1/17
+  description FREE:1000
+  shutdown
+
+interface Ethernet1/18
+  description FREE:1000
+  shutdown
+
+interface Ethernet1/19
+  description FREE:1000
+  shutdown
+
+interface Ethernet1/20
+  description FREE:1000
+  shutdown
+
+interface Ethernet1/21
+  description FREE:1000
+  shutdown
+
+interface Ethernet1/22
+  description FREE:1000
+  shutdown
+
+interface Ethernet1/23
+  description FREE:1000
+  shutdown
+
+interface Ethernet1/24
+  description FREE:1000
+  shutdown
+
+interface Ethernet1/24
+  description FREE:1000
+  shutdown
+ 
+interface Ethernet1/25
+  description FREE:1000
+  shutdown
+
+interface Ethernet1/26
+  description RSVD:SIX:LXDF/154377//ZYO:10G:SO#832067 - failover
+  no shutdown
+  no lldp transmit
+
+interface Ethernet1/27
+  description RSVD:Lumen:WA/KFFN/172042/LVLC:10G:SO#1429955 - failover
+  shutdown
+  no lldp transmit
+
+interface Ethernet1/28
+  description RSVD:Telus:CSID/1470115:10G:SO#1137834 - failover
+  shutdown
+  no lldp transmit
+
+interface Ethernet1/29
+  description RSVD:Zayo:IPYX/130359/008/ZYO:10G:SO#783501 - failover
+  shutdown
+  no lldp transmit
+
+interface Ethernet1/30
+  description NNI:Zayo:ETYX/154300//ZYO:10G:SO#941331
+  no lldp transmit
+  no cdp enable
+  switchport mode trunk
+  switchport trunk allowed vlan 600-699
+  spanning-tree port type edge trunk
+  spanning-tree bpdufilter enable
+  mtu 9216
+  no shutdown
+
+interface Ethernet1/31
+  description NNI:Shaw:EWO-140304:10G:SO 13371440
+  no lldp transmit
+  no cdp enable
+  switchport mode trunk
+  switchport trunk allowed vlan 500-599
+  spanning-tree port type edge trunk
+  spanning-tree bpdufilter enable
+  mtu 9216
+  speed 10000
+  duplex full
+  no shutdown
+
+interface Ethernet1/32
+  description IPT:Cogent:1-300340700:10G:SO#962222
+  no lldp transmit
+  no cdp enable
+  switchport access vlan 4
+  spanning-tree port type edge
+  spanning-tree bpdufilter enable
+  speed 10000
+  no shutdown
+
+interface Ethernet1/33
+  description FREE:1000
+  shutdown
+
+interface Ethernet1/34
+  description FREE:1000
+  shutdown
+
+interface Ethernet1/35
+  description XCA:XCAPOLLER2.Poller:10000:n/a
+  switchport access vlan 88
+  spanning-tree port type edge
+  mtu 9216
+  no shutdown
+
+interface Ethernet1/36
+  description FREE:
+  shutdown
+
+interface Ethernet1/37
+  description CORE:VLAN3891:to br-sea1-pgw01.SFP1:10G:n/a - Failover
+  no cdp enable
+  switchport access vlan 3891
+  spanning-tree port type edge
+  mtu 9216
+  no shutdown
+
+interface Ethernet1/38
+  description CORE:VLAN3820-3889:to br-sea1-pgw01.SFP2:10G:n/a - Failover
+  no cdp enable
+  switchport mode trunk
+  switchport trunk allowed vlan 3820-3889
+  spanning-tree port type edge trunk
+  mtu 9216
+  no shutdown
+
+interface Ethernet1/39
+  description CORE:VPC31:to br-sea1-pe01.SFP3:10G:n/a - Backbone
+  shutdown
+  no cdp enable
+  switchport mode trunk
+  switchport trunk allowed vlan 3800-3819
+  mtu 9216
+  channel-group 31 mode active
+
+interface Ethernet1/40
+  description CORE:VPC32:to br-sea1-pe01.SFP4:10G:n/a - Access
+  shutdown
+  no cdp enable
+  switchport mode trunk
+  switchport trunk allowed vlan 3820-3889
+  mtu 9216
+  channel-group 32 mode active
+
+interface Ethernet1/41
+  description CORE:VPC33:to br-sea1-pe02.SFP3:10G:n/a - Backbone
+  shutdown
+  no cdp enable
+  switchport mode trunk
+  switchport trunk allowed vlan 3800-3819
+  mtu 9216
+  channel-group 33 mode active
+
+interface Ethernet1/42
+  description CORE:VPC34:to br-sea1-pe02.SFP4:10G:n/a - Access
+  shutdown
+  no cdp enable
+  switchport mode trunk
+  switchport trunk allowed vlan 3820-3889
+  mtu 9216
+  channel-group 34 mode active
+
+interface Ethernet1/43
+  description FREE:
+  shutdown
+
+interface Ethernet1/44
+  description FREE:
+  shutdown
+
+interface Ethernet1/45
+  description CORE:VPC11:BR01.SEA1-Te0/0/2/1:10G:n/a
+  switchport mode trunk
+  mtu 9216
+  channel-group 11 mode active
+  no shutdown
+
+interface Ethernet1/46
+  description CORE:VPC11:BR01.SEA1-Te0/0/2/3:10G:n/a
+  switchport mode trunk
+  mtu 9216
+  channel-group 11 mode active
+  no shutdown
+
+interface Ethernet1/47
+  description CORE:VPC12:BR02.SEA1-Te0/0/2/1:10G:n/a
+  switchport mode trunk
+  mtu 9216
+  channel-group 12 mode active
+  no shutdown
+
+interface Ethernet1/48
+  description CORE:VPC12:BR02.SEA1-Te0/0/2/3:10G:n/a
+  switchport mode trunk
+  mtu 9216
+  channel-group 12 mode active
+  no shutdown
+
+interface Ethernet1/58
+  description CORE:VPC10:BS01.SEA1-Eth1/58:100G:n/a
+  switchport
+  switchport mode trunk
+  channel-group 10 mode active
+  no shutdown
+  
+ interface Ethernet1/59
+description CORE:VPC10:BS01.SEA1-Eth1/59:100G:n/a
+  switchport
+  switchport mode trunk
+  channel-group 10 mode active
+  no shutdown
+
+interface Ethernet1/60
+description CORE:VPC10:BS01.SEA1-Eth1/60:100G:n/a
+  switchport
+  switchport mode trunk
+  channel-group 10 mode active
+  no shutdown
+
+interface mgmt0
+  no shutdown
+  ip address 192.0.2.254/30
+  vrf member management
+
+cli alias name wr copy run start
+line console
+  speed 115200
+line vty
+  session-limit 5
+  exec-timeout 60
+  access-class VTY_ACCESS in
+
+logging server 10.140.64.60 7
+logging server 10.127.70.5
+logging source-interface Vlan127
+logging timestamp milliseconds
+logging level authpri 6
+logging origin-id string bs02.sea1.us
+
+=======================================================================
+
+Step 1:
+
+interface mgmt0
+  vrf member management
+  ip address 192.0.2.254/30
+  no shutdown
+
+Step 2:
+
+feature scp-server
+feature tacacs+
+cfs eth distribute
+feature udld
+feature interface-vlan
+feature lacp
+feature vpc
+feature lldp
+
+Step 3:
+
+vpc domain 20
+  role priority 2
+  system-priority 10
+  peer-keepalive destination 192.0.2.253 source 192.0.2.254 precedence 7 
+  dual-active exclude interface-vlan 127
+  auto-recovery
+
+Step 4:
+
+interface Ethernet1/58
+  description CORE:VPC10:BS01.SEA1-Eth1/58:100G:n/a
+  switchport
+  switchport mode trunk
+  channel-group 10 mode active
+  no shutdown
+  
+ interface Ethernet1/59
+description CORE:VPC10:BS01.SEA1-Eth1/59:100G:n/a
+  switchport
+  switchport mode trunk
+  channel-group 10 mode active
+  no shutdown
+
+interface Ethernet1/60
+description CORE:VPC10:BS01.SEA1-Eth1/60:100G:n/a
+  switchport
+  switchport mode trunk
+  channel-group 10 mode active
+  no shutdown
+
+Step 5:
+
+interface port-channel10
+  description CORE:VPC10:BS01.SEA1:300G:n/a
+  switchport mode trunk
+  spanning-tree port type network
+  vpc peer-link
+  no shutdown
+
+Step 6:
+
+spanning-tree mst 0 priority 16384
+spanning-tree mst configuration
+
+------------------------------------------------------Configure NEW BS01 First before procceed to Step 7 and 8----------------------------
+
+Step 7:
+
+interface Ethernet1/18                                 
+  description TEMP-OLD-BS02.Eth1/50[vPC30]
+  switchport
+  switchport
+  switchport mode trunk
+  mtu 9216
+  channel-group 30 mode active
+  no shutdown
+
+Step 8:
+
+interface port-channel30
+  description TEMP-CONNECT-TO-OLD-BS01/02
+  switchport
+  switchport mode trunk
+  spanning-tree port type network
+  mtu 9216
+  vpc 30
+  no shutdown
+
+
+
+
+
+
+
