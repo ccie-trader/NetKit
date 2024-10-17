@@ -1,0 +1,50 @@
+!#STEP1
+interface mgmt0
+  vrf member management
+  ip address 192.0.2.254/30
+  no shutdown
+!#STEP2
+feature scp-server
+feature tacacs+
+cfs eth distribute
+feature udld
+feature interface-vlan
+feature lacp
+feature vpc
+feature lldp
+!#STEP3
+vpc domain 20
+  role priority 2
+  system-priority 10
+  peer-keepalive destination 192.0.2.253 source 192.0.2.254 precedence 7 
+  dual-active exclude interface-vlan 127
+  auto-recovery
+!#STEP4
+interface port-channel10
+  description CORE:VPC10:BS01.SEA2:300G:n/a
+  switchport mode trunk
+  spanning-tree port type network
+  vpc peer-link
+  no shutdown
+!#STEP5
+interface Ethernet1/58
+  description CORE:VPC10:BS01.SEA2-Eth1/58:100G:n/a
+  switchport
+  switchport mode trunk
+  channel-group 10 mode active
+  no shutdown
+ interface Ethernet1/59
+  description CORE:VPC10:BS01.SEA2-Eth1/59:100G:n/a
+  switchport
+  switchport mode trunk
+  channel-group 10 mode active
+  no shutdown
+interface Ethernet1/60
+  description CORE:VPC10:BS01.SEA2-Eth1/60:100G:n/a
+  switchport
+  switchport mode trunk
+  channel-group 10 mode active
+  no shutdown
+!#SPANNING-TREE
+spanning-tree mst 0 priority 16384
+spanning-tree mst configuration

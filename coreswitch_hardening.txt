@@ -1,0 +1,73 @@
+!#feature set
+feature bash-shell
+feature scp-server
+feature tacacs+
+cfs eth distribute
+feature udld
+feature interface-vlan
+feature lacp
+feature vpc
+feature lldp
+
+!#DISABLE PARAMETERS
+no password strength-check
+no ip domain-lookup
+no cdp enable
+no spanning-tree bridge assurance
+
+!#UDLD
+udld aggressive
+udld message-time 7
+
+!#spanning tree
+spanning-tree mode mst
+
+!#port recovery
+errdisable recovery interval 30
+errdisable recovery cause link-flap
+errdisable recovery cause udld
+errdisable recovery cause bpduguard
+
+!#snmp
+snmp-server contact noc@expereo.com
+snmp-server location Seattle,WA,USA
+snmp-server source-interface traps Vlan127
+snmp-server user admin network-admin auth md5 0x05d35dbe3e28d51b89579a3ab6325d68 priv 0x05d35dbe3e28d51b89579a3ab6325d68 localizedkey
+snmp-server user recovery network-admin auth md5 0x61507a1280882c4f82cbeef2e84bcf79 priv 0x61507a1280882c4f82cbeef2e84bcf79 localizedkey
+snmp-server user recovery priv-15
+rmon event 1 log trap public description FATAL(1) owner PMON@FATAL
+rmon event 2 log trap public description CRITICAL(2) owner PMON@CRITICAL
+rmon event 3 log trap public description ERROR(3) owner PMON@ERROR
+rmon event 4 log trap public description WARNING(4) owner PMON@WARNING
+rmon event 5 log trap public description INFORMATION(5) owner PMON@INFO
+snmp-server community BackB0n3-007SD group network-operator
+snmp-server community BackB0n3-007SD use-acl SNMP_RO
+
+!#ntp
+ntp server 195.238.244.3 use-vrf default
+ntp server 195.238.244.4 use-vrf default
+
+!#default route
+ip route 0.0.0.0/0 10.127.131.1
+
+!#
+spanning-tree mst configuration
+  name expereo
+udld aggressive
+udld message-time 7
+vrf context management
+
+!#TERMINAL LINE CONFIGURATION
+cli alias name wr copy run start
+line console
+  speed 115200
+line vty
+  session-limit 5
+  exec-timeout 60
+  access-class VTY_ACCESS in
+logging server 10.140.64.60 7
+logging server 10.127.70.5
+logging source-interface Vlan127
+logging timestamp milliseconds
+logging level authpri 6
+logging origin-id string bs02.sea1.us

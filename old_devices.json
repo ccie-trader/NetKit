@@ -1,0 +1,10 @@
+[
+    {
+        "ip": "192.168.0.231",
+        "device_type": "cisco_nxos"
+    },
+    {
+        "ip": "192.168.0.232",
+        "device_type": "cisco_nxos"
+    }
+]
